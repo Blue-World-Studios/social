@@ -1,25 +1,85 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Post — Blue World</title>
-  <link rel="stylesheet" href="styles.css">
-  <script defer src="script.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Create — Blue World Social</title>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-
   <header>
-    <h1>Create a Post</h1>
-    <button onclick="window.location.href='index.html'">Home</button>
-    <button onclick="window.location.href='profile.html'">Profile</button>
-    <button onclick="window.location.href='settings.html'">Settings</button>
+    <h1>Create Post</h1>
+    <div class="header-buttons">
+      <button id="navHome">Home</button>
+      <button id="navProfile">Profile</button>
+      <button id="navSettings">Settings</button>
+      <button id="themeToggle">🌙</button>
+    </div>
   </header>
 
-  <main class="container">
-    <textarea id="postContent" placeholder="What's happening?" rows="5"></textarea>
-    <button id="submitPostBtn">Post</button>
+  <section id="authContainer">
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <div style="display:flex; gap:8px;">
+      <button id="signInBtn">Sign In</button>
+      <button id="signOutBtn">Sign Out</button>
+    </div>
+    <div id="userDisplay"></div>
+  </section>
+
+  <main>
+    <section id="postContainer">
+      <textarea id="postText" placeholder="What's happening?"></textarea>
+      <input id="postFile" type="file" accept="image/*" />
+      <div id="fileName"></div>
+      <div id="postPreview"></div>
+      <button id="postButton">Post</button>
+    </section>
   </main>
 
+  <script type="module">
+    import { signIn, signOut, initAuthUI } from './auth.js';
+    import { createPost, handleFileSelect } from './feed.js';
+
+    // Navigation
+    document.getElementById('navHome').addEventListener('click', () => location.href = 'index.html');
+    document.getElementById('navProfile').addEventListener('click', () => location.href = 'profile.html');
+    document.getElementById('navSettings').addEventListener('click', () => location.href = 'settings.html');
+
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    function applyTheme() {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.body.classList.toggle('light', theme === 'light');
+      themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
+    }
+    themeToggle.addEventListener('click', () => {
+      const newTheme = (localStorage.getItem('theme') || 'dark') === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', newTheme);
+      applyTheme();
+    });
+    applyTheme();
+
+    // Auth and UI
+    initAuthUI();
+
+    // Post events
+    document.getElementById('postFile').addEventListener('change', handleFileSelect);
+    document.getElementById('postButton').addEventListener('click', async () => {
+      await createPost();
+      // After posting, go home to see feed
+      location.href = 'index.html';
+    });
+
+    // Sign in/out hooks
+    document.getElementById('signInBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      await signIn(email, password);
+    });
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await signOut();
+    });
+  </script>
 </body>
 </html>
