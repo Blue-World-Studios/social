@@ -11,7 +11,7 @@ export const storage = new Storage(client);
 
 // Database IDs (you create these in Appwrite console)
 export const DB_ID = "6919e49d0014815f9b50";
-export const POSTS_COL = "6919e60e003677818ace";
-export const BUCKET_ID = "6919e5e800113bbc7df0";
+export const POSTS_COL = "posts";
+export const BUCKET_ID = "images";
 
 
