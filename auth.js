@@ -1,38 +1,34 @@
 // auth.js
 import { account } from './appwrite.js';
 
-export let currentUser = null;
-
+// Sign in
 export async function signIn(email, password) {
   try {
-    await account.createSession(email, password);
-    currentUser = await account.get();
-    alert(`Signed in as ${currentUser.email}`);
-    document.getElementById('userDisplay').textContent = currentUser.email;
+    await account.createEmailSession(email, password);
+    alert("Signed in!");
   } catch (e) {
     console.error(e);
-    alert("Sign in error: " + e.message);
+    alert("Sign in failed: " + e.message);
   }
 }
 
+// Sign out
 export async function signOut() {
   try {
     await account.deleteSession('current');
-    currentUser = null;
     alert("Signed out!");
-    document.getElementById('userDisplay').textContent = '';
   } catch (e) {
     console.error(e);
-    alert("Sign out error: " + e.message);
+    alert("Sign out failed: " + e.message);
   }
 }
 
-// On page load, check if user is logged in
-(async () => {
+// Get current user
+export async function getCurrentUser() {
   try {
-    currentUser = await account.get();
-    document.getElementById('userDisplay').textContent = currentUser.email;
-  } catch (e) {
-    currentUser = null;
+    return await account.get();
+  } catch {
+    return null;
   }
-})();
+}
+
