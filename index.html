@@ -96,6 +96,45 @@
 
   applyTheme(); // apply on page load
 </script>
+<script type="module">
 
+import { auth } from './firebase.js';
+import { signIn, signOut } from './auth.js';
+import { createPost, handleFileSelect } from './feed.js';
+
+window.addEventListener("load", () => {
+  console.log("JS Loaded — Bloop online ⚡");
+
+  const postFile = document.getElementById('postFile');
+  const postButton = document.getElementById('postButton');
+  const signInBtn = document.getElementById('signInBtn');
+  const signOutBtn = document.getElementById('signOutBtn');
+
+  if (!postFile || !postButton || !signInBtn || !signOutBtn) {
+    console.error("❌ UI elements missing");
+    return;
+  }
+
+  postFile.addEventListener('change', handleFileSelect);
+  postButton.addEventListener('click', () => {
+    console.log("Post button clicked");
+    createPost(auth.currentUser);
+  });
+
+  signInBtn.addEventListener('click', async () => {
+    console.log("Sign in button clicked");
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    await signIn(email, password);
+  });
+
+  signOutBtn.addEventListener('click', async () => {
+    console.log("Sign out button clicked");
+    await signOut();
+  });
+
+});
+
+</script>
 </body>
 </html>
