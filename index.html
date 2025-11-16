@@ -1,140 +1,77 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Blue World Social</title>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Blue World Social — Home</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
-
 <body>
   <header>
     <h1>Blue World Social</h1>
+    <div class="header-buttons">
+      <button id="navCreate">Create</button>
+      <button id="navProfile">Profile</button>
+      <button id="navSettings">Settings</button>
+      <button id="themeToggle">🌙</button>
+    </div>
   </header>
-<button id="themeToggle">🌙 Dark Mode</button>
-  <button onclick="window.location.href='create.html'">Create</button>
-<button onclick="window.location.href='settings.html'">Settings</button>
-<button onclick="window.location.href='profile.html'">Profile</button>
 
-  <!-- Auth -->
-  <div id="authContainer">
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button id="signInBtn">Sign In</button>
-    <button id="signOutBtn">Sign Out</button>
-    <span id="userDisplay"></span>
-  </div>
+  <section id="authContainer">
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <div style="display:flex; gap:8px;">
+      <button id="signInBtn">Sign In</button>
+      <button id="signOutBtn">Sign Out</button>
+    </div>
+    <div id="userDisplay"></div>
+  </section>
 
-  <!-- Post Creator -->
-  <div id="postContainer">
-    <textarea id="postText" placeholder="What's happening?"></textarea>
-    <input type="file" id="postFile" />
-    <span id="fileName"></span>
-    <div id="postPreview"></div>
-    <button id="postButton">Post</button>
-  </div>
+  <main>
+    <section id="feedContainer"></section>
+  </main>
 
-  <!-- Feed -->
-  <div id="feedContainer"></div>
-
-  <!-- Modules -->
-  <script type="module" src="./appwrite.js"></script>
-  <script type="module" src="./auth.js"></script>
-  <script type="module" src="./feed.js"></script>
-
-  <!-- Connect UI -->
+  <!-- app scripts -->
   <script type="module">
     import { account } from './appwrite.js';
-    import { signIn, signOut } from './auth.js';
-    import { createPost, handleFileSelect, loadFeed } from './feed.js';
+    import { signIn, signOut, initAuthUI } from './auth.js';
+    import { loadFeed } from './feed.js';
 
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('postFile')
-        .addEventListener('change', handleFileSelect);
+    // Navigation
+    document.getElementById('navCreate').addEventListener('click', () => location.href = 'create.html');
+    document.getElementById('navProfile').addEventListener('click', () => location.href = 'profile.html');
+    document.getElementById('navSettings').addEventListener('click', () => location.href = 'settings.html');
 
-      document.getElementById('postButton')
-        .addEventListener('click', () => createPost());
-
-      document.getElementById('signInBtn')
-        .addEventListener('click', async () => {
-          const email = document.getElementById('email').value;
-          const password = document.getElementById('password').value;
-          await signIn(email, password);
-          loadFeed();
-        });
-
-      document.getElementById('signOutBtn')
-        .addEventListener('click', async () => {
-          await signOut();
-          loadFeed();
-        });
-
+    // Auth buttons
+    document.getElementById('signInBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      await signIn(email, password);
       loadFeed();
     });
-  </script>
-  <script>
-  const toggleBtn = document.getElementById("themeToggle");
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await signOut();
+      loadFeed();
+    });
 
-  function applyTheme() {
-    const theme = localStorage.getItem("theme") || "dark";
-    if (theme === "light") {
-      document.body.classList.add("light");
-      toggleBtn.textContent = "🌙 Dark Mode";
-    } else {
-      document.body.classList.remove("light");
-      toggleBtn.textContent = "☀️ Light Mode";
+    // Theme toggle (works across pages)
+    const themeToggle = document.getElementById('themeToggle');
+    function applyTheme() {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.body.classList.toggle('light', theme === 'light');
+      themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
     }
-  }
-
-  toggleBtn.addEventListener("click", () => {
-    const current = localStorage.getItem("theme") || "dark";
-    const newTheme = current === "dark" ? "light" : "dark";
-    localStorage.setItem("theme", newTheme);
+    themeToggle.addEventListener('click', () => {
+      const newTheme = (localStorage.getItem('theme') || 'dark') === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', newTheme);
+      applyTheme();
+    });
     applyTheme();
-  });
 
-  applyTheme(); // apply on page load
-</script>
-<script type="module">
-
-import { auth } from './firebase.js';
-import { signIn, signOut } from './auth.js';
-import { createPost, handleFileSelect } from './feed.js';
-
-window.addEventListener("load", () => {
-  console.log("JS Loaded — Bloop online ⚡");
-
-  const postFile = document.getElementById('postFile');
-  const postButton = document.getElementById('postButton');
-  const signInBtn = document.getElementById('signInBtn');
-  const signOutBtn = document.getElementById('signOutBtn');
-
-  if (!postFile || !postButton || !signInBtn || !signOutBtn) {
-    console.error("❌ UI elements missing");
-    return;
-  }
-
-  postFile.addEventListener('change', handleFileSelect);
-  postButton.addEventListener('click', () => {
-    console.log("Post button clicked");
-    createPost(auth.currentUser);
-  });
-
-  signInBtn.addEventListener('click', async () => {
-    console.log("Sign in button clicked");
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    await signIn(email, password);
-  });
-
-  signOutBtn.addEventListener('click', async () => {
-    console.log("Sign out button clicked");
-    await signOut();
-  });
-
-});
-
-</script>
+    // Initialize auth UI (updates userDisplay) and load feed
+    initAuthUI();
+    loadFeed();
+  </script>
 </body>
 </html>
+
