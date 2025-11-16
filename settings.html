@@ -1,29 +1,69 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings — Blue World</title>
-  <link rel="stylesheet" href="styles.css">
-  <script defer src="script.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Settings — Blue World Social</title>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-
   <header>
     <h1>Settings</h1>
-    <button onclick="window.location.href='index.html'">Home</button>
-    <button onclick="window.location.href='profile.html'">Profile</button>
-    <button onclick="window.location.href='create.html'">Create</button>
+    <div class="header-buttons">
+      <button id="navHome">Home</button>
+      <button id="navCreate">Create</button>
+      <button id="navProfile">Profile</button>
+      <button id="themeToggle">🌙</button>
+    </div>
   </header>
 
-  <main class="container">
-    <h2>Theme</h2>
-    <label class="switch">
-      <input type="checkbox" id="darkModeToggle">
-      <span class="slider"></span>
-    </label>
-    <p>Toggle dark mode</p>
+  <main class="settings">
+    <section>
+      <h2>Appearance</h2>
+      <label>
+        <input id="darkModeCheckbox" type="checkbox" /> Use light theme
+      </label>
+    </section>
+
+    <section>
+      <h2>Account</h2>
+      <p id="accountEmail">Not signed in</p>
+    </section>
   </main>
 
+  <script type="module">
+    import { getCurrentUser, signOut, signIn, initAuthUI } from './auth.js';
+
+    // Navigation
+    document.getElementById('navHome').addEventListener('click', () => location.href = 'index.html');
+    document.getElementById('navCreate').addEventListener('click', () => location.href = 'create.html');
+    document.getElementById('navProfile').addEventListener('click', () => location.href = 'profile.html');
+
+    // Theme
+    const themeToggle = document.getElementById('themeToggle');
+    const checkbox = document.getElementById('darkModeCheckbox');
+
+    function applyTheme() {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.body.classList.toggle('light', theme === 'light');
+      themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
+      checkbox.checked = theme === 'light';
+    }
+    checkbox.addEventListener('change', () => {
+      const newTheme = checkbox.checked ? 'light' : 'dark';
+      localStorage.setItem('theme', newTheme);
+      applyTheme();
+    });
+    applyTheme();
+
+    // Auth UI init
+    initAuthUI();
+
+    (async () => {
+      const user = await getCurrentUser();
+      if (user) document.getElementById('accountEmail').textContent = user.email;
+    })();
+  </script>
 </body>
 </html>
+
