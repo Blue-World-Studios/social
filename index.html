@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blue World Social</title>
+
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0cf" />
+
+  <!-- Optional: Blue Glow Font -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Blue World Social</h1>
+  </header>
+
+  <!-- Auth -->
+  <div id="authContainer">
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button id="signInBtn">Sign In</button>
+    <button id="signOutBtn">Sign Out</button>
+    <span id="userDisplay"></span>
+  </div>
+
+  <!-- Post Creator -->
+  <div id="postContainer">
+    <textarea id="postText" placeholder="What's happening?"></textarea>
+    <input type="file" id="postFile" />
+    <span id="fileName"></span>
+    <div id="postPreview"></div>
+    <button id="postButton">Post</button>
+  </div>
+
+  <!-- Feed -->
+  <div id="feedContainer"></div>
+
+  <!-- Script Modules -->
+  <script type="module" src="./appwrite.js"></script>
+  <script type="module" src="./auth.js"></script>
+  <script type="module" src="./feed.js"></script>
+
+  <!-- Wire up buttons -->
+  <script type="module">
+    import { account } from './appwrite.js';
+    import { signIn, signOut } from './auth.js';
+    import { createPost, handleFileSelect } from './feed.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // File upload
+      document.getElementById('postFile')
+        .addEventListener('change', handleFileSelect);
+
+      // Create post
+      document.getElementById('postButton')
+        .addEventListener('click', () => createPost());
+
+      // Sign in / Sign out
+      document.getElementById('signInBtn')
+        .addEventListener('click', async () => {
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+          await signIn(email, password);
+        });
+
+      document.getElementById('signOutBtn')
+        .addEventListener('click', async () => await signOut());
+    });
+  </script>
+</body>
+</html>
