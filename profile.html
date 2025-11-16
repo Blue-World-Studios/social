@@ -1,25 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Profile — Blue World</title>
-  <link rel="stylesheet" href="styles.css">
-  <script defer src="script.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile — Blue World Social</title>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-
   <header>
     <h1>Your Profile</h1>
-    <button onclick="window.location.href='index.html'">Home</button>
-    <button onclick="window.location.href='create.html'">Create</button>
-    <button onclick="window.location.href='settings.html'">Settings</button>
+    <div class="header-buttons">
+      <button id="navHome">Home</button>
+      <button id="navCreate">Create</button>
+      <button id="navSettings">Settings</button>
+      <button id="themeToggle">🌙</button>
+    </div>
   </header>
 
-  <main class="container">
-    <h2>@username</h2>
-    <p>Your posts will go here.</p>
+  <section id="authContainer">
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <div style="display:flex; gap:8px;">
+      <button id="signInBtn">Sign In</button>
+      <button id="signOutBtn">Sign Out</button>
+    </div>
+    <div id="userDisplay"></div>
+  </section>
+
+  <main>
+    <section id="profileInfo">
+      <h2 id="profileName">—</h2>
+    </section>
+
+    <section id="myPostsContainer"></section>
   </main>
 
+  <script type="module">
+    import { signIn, signOut, initAuthUI, getCurrentUser } from './auth.js';
+    import { loadUserPosts } from './feed.js';
+
+    // Navigation
+    document.getElementById('navHome').addEventListener('click', () => location.href = 'index.html');
+    document.getElementById('navCreate').addEventListener('click', () => location.href = 'create.html');
+    document.getElementById('navSettings').addEventListener('click', () => location.href = 'settings.html');
+
+    // Theme
+    const themeToggle = document.getElementById('themeToggle');
+    function applyTheme() {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.body.classList.toggle('light', theme === 'light');
+      themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
+    }
+    themeToggle.addEventListener('click', () => {
+      const newTheme = (localStorage.getItem('theme') || 'dark') === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', newTheme);
+      applyTheme();
+    });
+    applyTheme();
+
+    // Init auth UI and load user posts
+    initAuthUI();
+
+    // When user is ready, fill profile name and posts
+    (async () => {
+      const user = await getCurrentUser();
+      if (user) {
+        document.getElementById('profileName').textContent = user.email || user.name || 'You';
+        loadUserPosts(user.$id);
+      } else {
+        document.getElementById('profileName').textContent = 'Sign in to see your profile';
+      }
+    })();
+
+    // Sign in/out handlers
+    document.getElementById('signInBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      await signIn(email, password);
+      location.reload();
+    });
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await signOut();
+      location.reload();
+    });
+  </script>
 </body>
 </html>
+
